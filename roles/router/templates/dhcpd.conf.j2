@@ -1,0 +1,39 @@
+option domain-name "{{ router_domain }}";
+option domain-name-servers {{ router_name_servers }};
+
+default-lease-time 600;
+max-lease-time 7200;
+
+ddns-update-style none;
+
+authoritative;
+subnet {{ router_subnet }} netmask {{ router_subnet_netmask }} {
+    range {{ router_subnet_range_start }} {{ router_subnet_range_end }};
+    option routers {{ router_subnet_routers }};
+    option subnet-mask {{ router_subnet_netmask }};
+}
+
+host pirouter {
+    hardware ethernet e4:5f:01:07:04:81;
+    fixed-address 192.168.8.1;
+}
+
+host kube1 {
+    hardware ethernet dc:a6:32:4a:25:65;
+    fixed-address 192.168.8.11;
+}
+
+host kube2 {
+    hardware ethernet dc:a6:32:b1:c2:f8;
+    fixed-address 192.168.8.12;
+}
+
+host kube3 {
+    hardware ethernet dc:a6:32:b4:45:4f;
+    fixed-address 192.168.8.13;
+}
+
+host skyline {
+    hardware ethernet 4c:e1:73:4d:a5:8a;
+    fixed-address 192.168.8.21;
+}

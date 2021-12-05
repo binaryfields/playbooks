@@ -1,0 +1,13 @@
+rpi_unnecessary_packages:
+  - cpp 
+  - gcc 
+  - gdb
+  - libgcc-8-dev
+  - libx11-6
+  - libx11-data 
+rpi_unnecessary_services:
+  - alsa-state
+  - avahi-daemon
+  - bluetooth
+  - hciuart
+  - triggerhappy

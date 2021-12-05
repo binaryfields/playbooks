@@ -1,0 +1,88 @@
+# package configuration
+
+- name: update apt cache
+  apt:
+    update_cache: yes
+
+- name: upgrade apt packages
+  apt:
+    upgrade: yes
+  register: upgrade
+
+- name: install base packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ base_packages }}"
+
+- name: install base services
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ base_services }}"
+
+- name: remove undesirable packages
+  package:
+    name: "{{ unnecessary_packages }}"
+    state: absent
+
+- name: disable unnecessary services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items: "{{ unnecessary_services }}"
+  ignore_errors: yes
+
+# host configuration
+
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname_short }}"    
+
+- name: add FQDN to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ inventory_hostname }} {{ inventory_hostname_short }}"
+    state: present
+
+- name: set timezone
+  timezone:
+    name: "{{ node_timezone }}"
+
+# service configuration
+
+- name: configure ssh
+  copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload ssh
+
+- name: configure journald
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    line: '{{ item.var }}={{ item.val }}'
+    insertafter: '\[Journal\]'
+    state: present
+  with_items:  "{{ journald_config | default([]) }}"
+  notify: restart journald
+
+- name: tune system
+  sysctl:
+      name: "{{ item.var }}"
+      value: "{{ item.val }}"
+      state: present
+      sysctl_file: /etc/sysctl.d/00-ansible.conf
+      reload: yes
+  with_items: "{{ sysctl_config }}"
+  tags: sysctl
+
+- name: enable timesyncd
+  service:
+    name: systemd-timesyncd
+    state: started
+    enabled: yes

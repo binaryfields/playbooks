@@ -1,0 +1,16 @@
+- name: install git packages
+  package:
+    name: git
+    state: present
+
+- name: add local user
+  user:
+    name: "{{ git_user }}"
+    shell: /bin/bash
+    state: present
+
+- name: add ssh public key for user
+  authorized_key:
+    user: "{{ git_user }}"
+    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+    state: present

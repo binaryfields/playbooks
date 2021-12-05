@@ -1,0 +1,28 @@
+- name: install ufw
+  package:
+    name: ufw
+    state: present
+
+- name: reset firewall
+  ufw:
+    state: reset
+
+- name: deny incoming traffic
+  ufw:
+    policy: deny
+    direction: incoming
+
+- name: allow outgoing traffic
+  ufw:
+    policy: allow
+    direction: outgoing
+        
+- name: allow access to ssh
+  ufw:
+    rule: allow
+    port: ssh
+    proto: tcp
+
+- name: enable firewall
+  ufw:
+    state: enabled

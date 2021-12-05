@@ -1,0 +1,44 @@
+- name: add admin group
+  group:
+    name: admin
+    state: present
+
+- name: add local user
+  user:
+    name: "{{ base_user }}"
+    group: admin
+    shell: /bin/bash
+    state: present
+
+- name: add ssh public key for user
+  authorized_key:
+    user: "{{ base_user }}"
+    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+    state: present
+
+- name: add sudoer rule for local user
+  copy:
+    dest: /etc/sudoers.d/admin
+    content: "%admin ALL=(ALL:ALL) NOPASSWD:ALL"
+    owner: root
+    group: root
+    mode: 0440
+    validate: /usr/sbin/visudo -csf %s
+
+- name: configure bash aliases
+  blockinfile:
+    path: "/home/{{ base_user }}/.bashrc"
+    block: |
+      export LS_OPTIONS='--color=auto'
+      eval "`dircolors`"
+      alias ls='ls $LS_OPTIONS'
+      alias l='ls -CF'
+      alias la='ls -AF'
+      alias ll='ls -alF'
+
+- name: remove unnecessary users
+  user:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ unnecessary_users }}"
+  ignore_errors: yes

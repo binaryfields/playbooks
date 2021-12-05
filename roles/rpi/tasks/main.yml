@@ -1,0 +1,12 @@
+- name: remove rpi undesirable packages
+  package:
+    name: "{{ rpi_unnecessary_packages }}"
+    state: absent
+
+- name: disable rpi unnecessary services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items: "{{ rpi_unnecessary_services }}"
+  ignore_errors: yes

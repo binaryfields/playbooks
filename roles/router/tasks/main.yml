@@ -1,0 +1,82 @@
+# firewalld setup
+
+- name: install router services
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ router_services }}"
+
+- firewalld:
+    zone: home
+    interface: "{{ router_intf_lan }}"
+    permanent: yes
+    state: enabled
+  notify:
+    - restart firewalld
+
+- firewalld:
+    zone: public
+    interface: "{{ router_intf_wan }}"
+    permanent: yes
+    state: enabled
+  notify:
+    - restart firewalld
+
+- firewalld:
+    zone: public
+    masquerade: yes
+    permanent: yes
+    state: enabled
+  notify:
+    - restart firewalld
+
+- name: permit traffic in home zone for dns service
+  firewalld:
+    zone: home
+    service: dns
+    permanent: yes
+    state: enabled
+  notify:
+    - restart firewalld
+
+- name: permit traffic in home zone for dhcp service
+  firewalld:
+    zone: home
+    service: dhcp
+    permanent: yes
+    state: enabled
+  notify:
+    - restart firewalld
+
+# isc-dhcp-server setup
+
+- name: disable dhcpcd
+  service:
+    name: dhcpcd
+    state: stopped
+    enabled: no
+
+- name: configure isc-dhcp-server default
+  template:
+    src: isc-dhcp-server.j2
+    dest: /etc/default/isc-dhcp-server
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload isc-dhcp-server
+
+- name: configure isc-dhcp-server
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart isc-dhcp-server
+
+- name: enable isc-dhcp-server
+  service:
+    name: isc-dhcp-server
+    state: started
+    enabled: yes
+  
