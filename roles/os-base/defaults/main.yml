@@ -1,12 +1,6 @@
 base_packages:
-  - fish 
-  - bat
-  - fzf 
-  - ripgrep 
-  - atop 
   - htop
-  - lnav 
-  - ncdu
+  - atop
   - zstd
 base_services:
   - irqbalance 

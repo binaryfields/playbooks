@@ -1,10 +1,49 @@
 rpi_unnecessary_packages:
   - cpp 
   - gcc 
+  - gcc-8-base
   - gdb
+  - make
   - libgcc-8-dev
   - libx11-6
   - libx11-data 
+  - avahi-daemon
+  - auditd
+  - bluez
+  - busybox
+  - cifs-utils
+  - debconf-utils
+  - dosfstools
+  - ed
+  - ethtool
+  - iperf3
+  - keyboard-configuration
+  - libc6-dev
+  - libfile-fcntllock-perl
+  - libusb-1.0-0
+  - libtext-charwidth-perl 
+  - libtext-iconv-perl 
+  - libtext-wrapi18n-perl
+  - manpages-dev
+  - mc
+  - mksh
+  - nfs-common
+  - ntfs-3g
+  - openresolv
+  - pciutils
+  - pigz
+  - publicsuffix
+  - v4l-utils
+  - selinux-utils
+  - strace
+  - tasksel
+  - triggerhappy
+  - unzip
+  - usbutils
+  - wireless-tools 
+  - wireless-regdb
+  - wpasupplicant
+  - xdg-user-dirs
 rpi_unnecessary_services:
   - alsa-state
   - avahi-daemon

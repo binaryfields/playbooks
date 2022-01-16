@@ -17,7 +17,7 @@
     policy: allow
     direction: outgoing
         
-- name: allow access to ssh
+- name: allow ssh
   ufw:
     rule: allow
     port: ssh
