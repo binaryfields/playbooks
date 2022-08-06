@@ -3,7 +3,7 @@ base_packages:
   - atop
   - zstd
 base_services:
-  - irqbalance 
+  - irqbalance
   - systemd-timesyncd
 unnecessary_packages:
   - nmap-ncat
@@ -13,11 +13,11 @@ unnecessary_services:
   - atop
   - atopacct
   - chrony
-  - rsyslog  
+  - rsyslog
   - postfix
 journald_config:
   - var: Compress
-    val: yes
+    val: true
   - var: SystemMaxUse
     val: 1G
   - var: SystemMaxFileSize

@@ -1,12 +1,12 @@
 rpi_unnecessary_packages:
-  - cpp 
-  - gcc 
+  - cpp
+  - gcc
   - gcc-8-base
   - gdb
   - make
   - libgcc-8-dev
   - libx11-6
-  - libx11-data 
+  - libx11-data
   - avahi-daemon
   - auditd
   - bluez
@@ -21,8 +21,8 @@ rpi_unnecessary_packages:
   - libc6-dev
   - libfile-fcntllock-perl
   - libusb-1.0-0
-  - libtext-charwidth-perl 
-  - libtext-iconv-perl 
+  - libtext-charwidth-perl
+  - libtext-iconv-perl
   - libtext-wrapi18n-perl
   - manpages-dev
   - mc
@@ -40,7 +40,7 @@ rpi_unnecessary_packages:
   - triggerhappy
   - unzip
   - usbutils
-  - wireless-tools 
+  - wireless-tools
   - wireless-regdb
   - wpasupplicant
   - xdg-user-dirs

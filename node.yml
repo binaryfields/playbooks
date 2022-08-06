@@ -1,21 +1,20 @@
 - name: apply o/s configuration
   hosts: all
-  become: yes
+  become: true
   roles:
     - os-base
     - os-user
 
 - name: configure git servers
   hosts: git
-  become: yes
+  become: true
   roles:
     - os-firewall
     - git
 
 - name: configure routers
   hosts: routers
-  become: yes
+  become: true
   roles:
     - rpi
     - router
-

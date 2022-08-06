@@ -1,8 +1,8 @@
 - name: restart journald
-  service:
+  ansible.builtin.service:
     name: systemd-journald
     state: restarted
 - name: reload ssh
-  service:
+  ansible.builtin.service:
     name: sshd
     state: reloaded

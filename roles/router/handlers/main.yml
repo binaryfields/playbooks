@@ -1,12 +1,12 @@
 - name: restart firewalld
-  service:
+  ansible.builtin.service:
     name: firewalld
     state: restarted
 - name: restart isc-dhcp-server
-  service:
+  ansible.builtin.service:
     name: isc-dhcp-server
     state: restarted
 - name: restart networking
-  service:
+  ansible.builtin.service:
     name: networking
     state: restarted

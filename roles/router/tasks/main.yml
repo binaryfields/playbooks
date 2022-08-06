@@ -1,49 +1,52 @@
 # firewalld setup
 
 - name: install router services
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items: "{{ router_services }}"
 
-- firewalld:
+- name: assign home zone to lan interface
+  ansible.posix.firewalld:
     zone: home
     interface: "{{ router_intf_lan }}"
-    permanent: yes
+    permanent: true
     state: enabled
   notify:
     - restart firewalld
 
-- firewalld:
+- name: assign public zone to wan interface
+  ansible.posix.firewalld:
     zone: public
     interface: "{{ router_intf_wan }}"
-    permanent: yes
+    permanent: true
     state: enabled
   notify:
     - restart firewalld
 
-- firewalld:
+- name: enable masquerade on public zone
+  ansible.posix.firewalld:
     zone: public
-    masquerade: yes
-    permanent: yes
+    masquerade: true
+    permanent: true
     state: enabled
   notify:
     - restart firewalld
 
 - name: permit traffic in home zone for dns service
-  firewalld:
+  ansible.posix.firewalld:
     zone: home
     service: dns
-    permanent: yes
+    permanent: true
     state: enabled
   notify:
     - restart firewalld
 
 - name: permit traffic in home zone for dhcp service
-  firewalld:
+  ansible.posix.firewalld:
     zone: home
     service: dhcp
-    permanent: yes
+    permanent: true
     state: enabled
   notify:
     - restart firewalld
@@ -51,13 +54,13 @@
 # isc-dhcp-server setup
 
 - name: disable dhcpcd
-  service:
+  ansible.builtin.service:
     name: dhcpcd
     state: stopped
-    enabled: no
+    enabled: false
 
 - name: configure isc-dhcp-server default
-  template:
+  ansible.builtin.template:
     src: isc-dhcp-server.j2
     dest: /etc/default/isc-dhcp-server
     owner: root
@@ -66,7 +69,7 @@
   notify: reload isc-dhcp-server
 
 - name: configure isc-dhcp-server
-  template:
+  ansible.builtin.template:
     src: dhcpd.conf.j2
     dest: /etc/dhcp/dhcpd.conf
     owner: root
@@ -75,8 +78,7 @@
   notify: restart isc-dhcp-server
 
 - name: enable isc-dhcp-server
-  service:
+  ansible.builtin.service:
     name: isc-dhcp-server
     state: started
-    enabled: yes
-  
+    enabled: true

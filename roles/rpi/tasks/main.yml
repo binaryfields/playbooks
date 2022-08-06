@@ -1,12 +1,12 @@
 - name: remove rpi undesirable packages
-  package:
+  ansible.builtin.package:
     name: "{{ rpi_unnecessary_packages }}"
     state: absent
 
 - name: disable rpi unnecessary services
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: stopped
-    enabled: no
+    enabled: false
   with_items: "{{ rpi_unnecessary_services }}"
-  ignore_errors: yes
+  failed_when: false
