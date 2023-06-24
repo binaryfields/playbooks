@@ -1,0 +1,36 @@
+- name: Retrieve package facts
+  package_facts:
+    manager: "auto"
+
+- name: Retrieve service facts
+  service_facts:
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+  when: timezone is defined
+
+- name: Import tasks for packages
+  ansible.builtin.include_tasks: packages.yml
+  when: common_packages_enabled | bool
+  tags: packages
+
+- name: Import tasks for kernel
+  ansible.builtin.include_tasks: kernel.yml
+  when: common_kernel_enabled | bool
+  tags: kernel
+
+- name: Import tasks for host
+  ansible.builtin.include_tasks: host.yml
+  when: common_host_enabled | bool
+  tags: host
+
+- name: Import tasks for services
+  ansible.builtin.include_tasks: services.yml
+  when: common_services_enabled | bool
+  tags: services
+
+- name: Import tasks for tuning
+  ansible.builtin.include_tasks: tuning.yml
+  when: common_tuning_enabled | bool
+  tags: tuning

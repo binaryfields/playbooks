@@ -1,21 +1,21 @@
-- name: add docker apt key
+- name: Add docker apt key
   ansible.builtin.apt_key:
     id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
     url: "{{ docker_apt_gpg_key }}"
     state: present
 
-- name: add docker repository
+- name: Add docker repository
   ansible.builtin.apt_repository:
     repo: "{{ docker_apt_repository }}"
     state: present
     update_cache: true
 
-- name: install docker
+- name: Install docker
   ansible.builtin.apt:
     name: docker-ce
     state: present
 
-- name: start docker
+- name: Start docker
   ansible.builtin.service:
     name: docker
     state: started

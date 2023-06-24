@@ -1,0 +1,39 @@
+[Unit]
+Description=Lightweight Kubernetes
+Documentation=https://k3s.io
+After=network-online.target
+Wants=network-online.target var-lib-rancher-k3s-storage.mount
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/k3s agent --server https://{{ master_ip }}:6443 \
+    --kubelet-arg=anonymous-auth=false \
+    --kubelet-arg=tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384 \
+    --kubelet-arg=tls-min-version=VersionTLS12 \
+    --protect-kernel-defaults=true \
+    {{ extra_agent_args | default("") }}
+Environment="K3S_TOKEN={{ hostvars[groups['kube_master'][0]]['token'] }}"
+Delegate=yes
+KillMode=process
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitCORE=infinity
+LimitNOFILE=1048576
+LimitNPROC=infinity
+Restart=on-failure
+RestartSec=5s
+TasksMax=infinity
+TimeoutStartSec=0
+
+# Sandboxing features
+LockPersonality=yes
+PrivateTmp=yes
+ProtectHome=yes
+#ProtectHostname=yes
+#ProtectKernelLogs=yes
+ProtectKernelTunables=yes
+ProtectSystem=strict
+ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run 
+
+[Install]
+WantedBy=multi-user.target

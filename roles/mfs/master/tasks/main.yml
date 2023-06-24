@@ -1,0 +1,65 @@
+- name: Install mfs master
+  ansible.builtin.package:
+    name:
+      - moosefs-master
+      - moosefs-cli
+    state: present
+
+- name: Check for existence of mfs master configuration
+  ansible.builtin.stat:
+    path: /etc/mfs/mfsmaster.cfg
+  register: master_config_exists
+
+- name: Prepare mfs master configuration
+  when:
+    - not master_config_exists.stat.exists | bool
+  block:
+    - name: Copy mfs master configuration
+      ansible.builtin.copy:
+        src: /usr/share/doc/moosefs-master/examples/mfsmaster.cfg
+        dest: /etc/mfs/mfsmaster.cfg
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+      register: master_config
+
+- name: Configure mfs exports
+  ansible.builtin.template:
+    src: mfsexports.cfg.j2
+    dest: /etc/mfs/mfsexports.cfg
+    owner: root
+    group: root
+    mode: "0644"
+  register: master_exports
+
+- name: Check for existence of mfs metadata
+  ansible.builtin.stat:
+    path: /var/lib/mfs/metadata.mfs
+  register: master_metadata_exists
+
+- name: Prepare mfs metadata
+  when:
+    - not master_metadata_exists.stat.exists | bool
+  block:
+    - name: Copy mfs metadata
+      ansible.builtin.copy:
+        src: /var/lib/mfs/metadata.mfs.empty
+        dest: /var/lib/mfs/metadata.mfs
+        remote_src: true
+        owner: mfs
+        group: mfs
+        mode: "0644"
+      register: master_metadata
+
+- name: Stop mfs master service
+  ansible.builtin.service:
+    name: moosefs-master
+    state: stopped
+  when: (master_config is defined) or master_exports.changed or (master_metadata is defined) 
+
+- name: Start mfs master service
+  ansible.builtin.service:
+    name: moosefs-master
+    state: started
+    enabled: true

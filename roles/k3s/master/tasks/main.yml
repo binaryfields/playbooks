@@ -1,0 +1,49 @@
+- name: Import tasks for keepalived
+  ansible.builtin.include_tasks: keepalived.yml
+  tags: keepalived
+
+- name: Create k3s directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  with_items:
+    - /etc/rancher/k3s
+    - /var/lib/rancher/k3s
+    - /var/log/rancher/audit
+
+- name: Create k3s service file
+  ansible.builtin.template:
+    src: k3s.service.j2
+    dest: /etc/systemd/system/k3s.service
+    owner: root
+    group: root
+    mode: "0400"
+  register: k3s_service
+
+- name: Stop k3s service
+  ansible.builtin.systemd:
+    name: k3s
+    state: stopped
+  when: k3s_service.changed
+
+- name: Start k3s service
+  ansible.builtin.systemd:
+    name: k3s
+    state: started
+    daemon_reload: true
+    enabled: true
+
+- name: Wait for node-token
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/k3s/server/token
+
+- name: Save kube config as artifact
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: artifacts/kubeconfig
+    flat: true
+  run_once: true
+  changed_when: false

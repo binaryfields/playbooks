@@ -1,0 +1,15 @@
+- name: Deploy common configuration
+  hosts: all
+  become: true
+  roles:
+    - common
+    - common-user
+
+- name: Configure git servers
+  hosts: git
+  become: true
+  roles:
+    - os-firewall
+    - git
+  tags:
+    - git

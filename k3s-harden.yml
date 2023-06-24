@@ -1,0 +1,19 @@
+- name: Harden nat node
+  hosts: nat
+  gather_facts: true
+  become: true
+  collections:
+    - devsec.hardening    
+  roles:
+    - os_hardening
+  tags: hardening
+
+- name: Harden k3s nodes 
+  hosts: kube_cluster
+  gather_facts: true
+  become: true
+  collections:
+    - devsec.hardening    
+  roles:
+    - os_hardening
+  tags: hardening

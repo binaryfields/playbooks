@@ -1,0 +1,4 @@
+mfs_master_host: mfsmaster
+mfs_chunkserver_storage:
+  - /mnt/chunks1
+

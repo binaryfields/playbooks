@@ -1,0 +1,10 @@
+- name: Read node-token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/token
+  delegate_to: "{{ groups['kube_master'][0] }}"
+  run_once: true
+  register: node_token
+
+- name: Store node-token
+  ansible.builtin.set_fact:
+    token: "{{ hostvars[groups['kube_master'][0]]['node_token'].content | b64decode | regex_replace('\n', '') }}"

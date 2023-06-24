@@ -1,0 +1,32 @@
+- name: Create k3s directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  with_items:
+    - /etc/rancher/k3s
+    - /var/lib/rancher/k3s
+
+- name: Create k3s agent service file
+  ansible.builtin.template:
+    src: k3s-agent.service.j2
+    dest: /etc/systemd/system/k3s-agent.service
+    owner: root
+    group: root
+    mode: "0400"
+  register: k3s_agent_service
+
+- name: Stop k3s agent service
+  ansible.builtin.systemd:
+    name: k3s-agent
+    state: stopped
+  when: k3s_agent_service.changed
+
+- name: Start k3s agent service
+  ansible.builtin.systemd:
+    name: k3s-agent
+    state: started
+    daemon_reload: true
+    enabled: true

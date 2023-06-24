@@ -1,0 +1,31 @@
+- name: Disable unwanted services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  with_items: "{{ unwanted_services }}"
+  failed_when: false
+
+- name: Configure ssh
+  ansible.builtin.copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload ssh
+
+- name: Configure journald
+  community.general.ini_file:
+    dest: /etc/systemd/journald.conf
+    section: Journal
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    create: yes
+    owner: root
+    group: root
+    mode: "0644"
+  with_items:
+    - { key: SystemMaxUse, value: "1G" }
+    - { key: SystemMaxFileSize, value: "10M" }
+  notify: restart journald

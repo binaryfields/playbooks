@@ -1,0 +1,26 @@
+- name: Check for existence of mount point
+  ansible.builtin.stat:
+    path:  "{{ mount.path }}"
+  register: volume_mount_exists
+
+- name: Create mount point
+  ansible.builtin.file:
+    path: "{{ mount.path }}"
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+  when:
+    - not volume_mount_exists.stat.exists | bool
+
+- name: Get volume UUID
+  ansible.builtin.command: lsblk {{ mount.src }} -no UUID
+  register: volume_uuid
+
+- name: Mount volume
+  ansible.posix.mount:
+    path: "{{ mount.path }}"
+    src: "UUID={{ volume_uuid.stdout_lines[0] }}"
+    fstype: "{{ mount.fstype }}"
+    opts: "{{ mount.opts }}"
+    state: mounted

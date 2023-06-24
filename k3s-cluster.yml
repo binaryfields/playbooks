@@ -1,0 +1,125 @@
+#
+# common
+#
+
+- name: Deploy NAT configuration
+  hosts: nat
+  become: true
+  roles:
+    - common
+    - common-user
+    - nat
+  tags: nat
+
+- name: Deploy common configuration
+  hosts: kube_cluster
+  become: true
+  roles:
+    - common
+    - common-user
+  tags: common
+
+- name: Mount volumes on nodes
+  hosts: kube_node
+  become: true
+  roles:
+    - common-mount
+  tags: common
+
+#
+# mfs
+#
+
+- name: Deploy mfs dns configuration
+  hosts: mfs_cluster
+  become: true
+  roles:
+    - mfs/dns
+  tags: 
+    - mfs
+    - mfs-dns
+
+- name: Deploy mfs master
+  hosts: mfs_masters
+  become: true
+  roles:
+    - mfs/master
+  tags: 
+    - mfs
+    - mfs-master
+
+- name: Deploy mfs metalogger
+  hosts: mfs_backups
+  become: true
+  roles:
+    - mfs/metalogger
+  tags: 
+    - mfs
+    - mfs-metalogger
+
+- name: Deploy mfs chunkserver
+  hosts: mfs_nodes
+  become: true
+  roles:
+    - mfs/chunkserver
+  tags:
+    - mfs
+    - mfs-chunkserver
+  
+- name: Deploy mfs clients
+  hosts: mfs_clients
+  become: true
+  roles:
+    - mfs/client
+  tags:
+    - mfs
+    - mfs-client
+
+#
+# k3s
+#
+
+- name: Deploy k3s dependencies 
+  hosts: kube_cluster
+  become: true 
+  roles:
+    - k3s/prereq
+  tags:
+    - k3s
+    - k3s-dep
+
+- name: Deploy k3s binaries 
+  hosts: kube_cluster
+  become: true
+  roles:
+    - k3s/binary
+  tags: 
+    - k3s
+    - k3s-bin
+  
+- name: Deploy k3s master
+  hosts: kube_master
+  become: true
+  roles:
+    - k3s/master
+  tags: 
+    - k3s
+    - k3s-server
+
+- name: Read k3s token
+  hosts: kube_master
+  become: true
+  roles:
+    - k3s/token
+  tags:
+    - k3s
+    - k3s-agent
+
+- name: Deploy k3s nodes
+  hosts: kube_node
+  become: true
+  roles:
+    - k3s/node
+  tags: 
+    - k3s
+    - k3s-agent

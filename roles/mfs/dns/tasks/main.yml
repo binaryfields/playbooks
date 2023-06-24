@@ -1,0 +1,8 @@
+- name: Update /etc/hosts with mfs node name
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "{{ hostvars[item]['ansible_host'] }}  .*"
+    line: "{{ hostvars[item]['ansible_host'] }}  {{ hostvars[item]['ansible_hostname'] }}  {{ item }}"
+    state: present
+    backup: yes
+  with_items: "{{ groups['mfs_cluster'] }}"

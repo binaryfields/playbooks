@@ -1,0 +1,2 @@
+mfs_exports:
+  - { ip: "*", path: "/", options: "rw,alldirs,admin,maproot=0:0" }

@@ -1,0 +1,57 @@
+- name: Enable ip forwarding
+  ansible.posix.sysctl:
+    sysctl_file: /etc/sysctl.d/10-nat.conf
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  with_items:
+    - { key: net.ipv4.ip_forward, value: 1 }
+  tags: sysctl
+
+- name: Install firewalld
+  ansible.builtin.package:
+    name: firewalld
+    state: present
+
+- name: Enable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Assign public interface to external zone
+  ansible.posix.firewalld:
+    zone: external
+    interface: "{{ nat_public_interface }}"
+    immediate: true
+    permanent: true
+    state: enabled
+
+- name: Assign private interface to internal zone
+  ansible.posix.firewalld:
+    zone: internal
+    interface: "{{ nat_internal_interface }}"
+    immediate: true
+    permanent: true
+    state: enabled
+
+- name: Open external ports
+  ansible.posix.firewalld:
+    zone: external
+    service: "{{ item }}"
+    immediate: true
+    permanent: true
+    state: enabled
+  with_items:
+    - ssh
+
+- name: Enable masquerade on external zone
+  ansible.posix.firewalld:
+    zone: "{{ item }}"
+    masquerade: true
+    immediate: true
+    permanent: true
+    state: enabled
+  with_items:
+    - external

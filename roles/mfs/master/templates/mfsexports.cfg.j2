@@ -1,0 +1,5 @@
+# *			/	rw,alldirs,maproot=0:0
+
+{% for export in mfs_exports %}
+{{ export.ip }}			{{ export.path }}	{{ export.options }}
+{% endfor %}

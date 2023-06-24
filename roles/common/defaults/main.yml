@@ -1,0 +1,17 @@
+common_packages_enabled: true
+common_kernel_enabled: true
+common_host_enabled: true
+common_services_enabled: true
+common_tuning_enabled: true
+base_packages:
+  - atop
+  - htop
+  - zstd
+  - chrony
+kernel_packages: 
+  - linux-image
+unwanted_services:
+  - atop
+  - atopacct
+  - rsyslog
+timezone: Etc/UTC

@@ -1,0 +1,2 @@
+nat_public_interface: eth0
+nat_internal_interface: eth1

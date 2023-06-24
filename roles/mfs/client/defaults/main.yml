@@ -1,0 +1,3 @@
+mfs_master_host: mfsmaster
+mfs_mount_path: /mnt/mfs
+mfs_mount_opts: defaults,mfsdelayedinit

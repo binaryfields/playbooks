@@ -1,2 +1,4 @@
-*.ini
-TODO.md
+.vscode/
+artifacts/
+inventory/
+SCRATCHPAD.md

@@ -1,0 +1,41 @@
+- name: Enable kernel modules
+  ansible.builtin.copy:
+    dest: "/etc/modules-load.d/{{ item }}.conf"
+    content: "{{ item }}"
+    mode: "0600"
+  with_items:
+    - br_netfilter
+    - ip_conntrack
+    - overlay
+
+- name: Load kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - br_netfilter
+    - ip_conntrack
+    - overlay
+
+- name: Set sysctl ip conf
+  ansible.posix.sysctl:
+    sysctl_file: /etc/sysctl.d/10-k3s.conf
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  with_items:
+    - { key: kernel.panic, value: 10 }
+    - { key: kernel.panic_on_oops, value: 1 }
+    - { key: net.bridge.bridge-nf-call-arptables, value: 1 }
+    - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
+    - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
+    - { key: net.ipv4.ip_forward, value: 1 }
+    - { key: net.ipv4.conf.all.route_localnet, value: 1 }
+    - { key: net.ipv6.conf.all.forwarding, value: 1 }
+    - { key: net.netfilter.nf_conntrack_max, value: 131072 }
+    - { key: net.netfilter.nf_conntrack_tcp_timeout_established, value: 86400 }
+    - { key: net.netfilter.nf_conntrack_tcp_timeout_close_wait, value: 3600 }
+    - { key: vm.panic_on_oom, value: 0 }
+    - { key: vm.overcommit_memory, value: 1 }
+ 

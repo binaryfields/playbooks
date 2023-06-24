@@ -1,0 +1,39 @@
+- name: Create custom manifest folder
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/custom-manifests
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Create csi-moosefs config manifest
+  ansible.builtin.template:
+    src: csi-moosefs-config.yaml.j2
+    dest: /var/lib/rancher/k3s/server/custom-manifests/csi-moosefs-config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Deploy csi-moosefs config
+  command: |
+    kubectl apply -f /var/lib/rancher/k3s/server/custom-manifests/csi-moosefs-config.yaml
+  changed_when: "'created' in kubectl.stdout or 'configured' in kubectl.stdout"
+  failed_when: "'AlreadyExists' not in kubectl.stderr and kubectl.rc != 0"
+  register: kubectl
+  run_once: true  
+
+- name: Create csi-moosefs sidekick manifest
+  ansible.builtin.copy:
+    src: csi-moosefs.yaml
+    dest: /var/lib/rancher/k3s/server/custom-manifests/csi-moosefs.yaml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Deploy csi-moosefs sidekick
+  command: |
+    kubectl apply -f /var/lib/rancher/k3s/server/custom-manifests/csi-moosefs.yaml
+  changed_when: "'created' in kubectl.stdout or 'configured' in kubectl.stdout"
+  failed_when: "'AlreadyExists' not in kubectl.stderr and kubectl.rc != 0"
+  register: kubectl
+  run_once: true  

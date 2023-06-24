@@ -1,0 +1,22 @@
+- name: Install mfs client
+  ansible.builtin.package:
+    name:
+      - moosefs-client
+      - fuse3
+    state: present
+
+- name: Create mfs mount point
+  ansible.builtin.file:
+    path: "{{ mfs_mount_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+
+- name: Mount mfs filesystem
+  ansible.posix.mount:
+    path: "{{ mfs_mount_path }}"
+    src: "{{ mfs_master_host }}:"
+    fstype: moosefs
+    opts: "{{ mfs_mount_opts }}"
+    state: mounted

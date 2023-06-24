@@ -1,0 +1,4 @@
+k3s_keepalive_enabled: false
+keepalived_interface: eth0
+keepalived_addr_cidr: 192.168.122.100/24
+keepalived_ip: 192.168.122.100

@@ -1,0 +1,63 @@
+- name: Install mfs chunkserver
+  ansible.builtin.package:
+    name:
+      - moosefs-chunkserver
+    state: present
+
+- name: Check for existence of mfs chunkserver configuration
+  ansible.builtin.stat:
+    path: /etc/mfs/mfschunkserver.cfg
+  register: chunkserver_config_exists
+
+- name: Prepare mfs chunkserver configuration
+  when:
+    - not chunkserver_config_exists.stat.exists | bool
+  block:
+    - name: Copy mfs chunkserver configuration
+      ansible.builtin.copy:
+        src: /usr/share/doc/moosefs-chunkserver/examples/mfschunkserver.cfg
+        dest: /etc/mfs/mfschunkserver.cfg
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+
+- name: Configure mfs chunkserver
+  community.general.ini_file:
+    dest: /etc/mfs/mfschunkserver.cfg
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { key: MASTER_HOST, value: "{{ mfs_master_host }}" }
+  register: chunkserver_config
+
+- name: Configure mfs storage
+  ansible.builtin.template:
+    src: mfshdd.cfg.j2
+    dest: /etc/mfs/mfshdd.cfg
+    owner: root
+    group: root
+    mode: "0644"
+  register: chunkserver_storage
+
+- name: Change mfs storage permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: mfs
+    group: mfs
+    mode: "0770"
+  with_items: "{{ mfs_chunkserver_storage }}"
+
+- name: Stop mfs chunkserver service
+  ansible.builtin.service:
+    name: moosefs-chunkserver
+    state: stopped
+  when: chunkserver_config.changed or chunkserver_storage.changed
+
+- name: Start mfs chunkserver service
+  ansible.builtin.service:
+    name: moosefs-chunkserver
+    state: started
+    enabled: true
+

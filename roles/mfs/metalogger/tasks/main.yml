@@ -1,0 +1,45 @@
+- name: Install mfs metalogger
+  ansible.builtin.package:
+    name:
+      - moosefs-metalogger
+    state: present
+
+- name: Check for existence of mfs metalogger configuration
+  ansible.builtin.stat:
+    path: /etc/mfs/mfsmetalogger.cfg
+  register: metalogger_config_exists
+
+- name: Prepare mfs metalogger configuration
+  when:
+    - not metalogger_config_exists.stat.exists | bool
+  block:
+    - name: Copy mfs metalogger configuration
+      ansible.builtin.copy:
+        src: /usr/share/doc/moosefs-metalogger/examples/mfsmetalogger.cfg
+        dest: /etc/mfs/mfsmetalogger.cfg
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+
+- name: Configure mfs metalogger
+  community.general.ini_file:
+    dest: /etc/mfs/mfsmetalogger.cfg
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { key: MASTER_HOST, value: "{{ mfs_master_host }}" }
+  register: metalogger_config
+
+- name: Stop mfs metalogger service
+  ansible.builtin.service:
+    name: moosefs-metalogger
+    state: stopped
+  when: metalogger_config.changed
+
+- name: Start mfs metalogger service
+  ansible.builtin.service:
+    name: moosefs-metalogger
+    state: started
+    enabled: true
+

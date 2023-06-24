@@ -1,0 +1,65 @@
+- name: Setup keepalived
+  when: k3s_keepalive_enabled | bool
+  block:
+    - name: Install keepalived
+      ansible.builtin.package:
+        name: keepalived
+        state: present
+
+    - name: Configure keepalived
+      ansible.builtin.template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: "0600"
+      register: keepalived_service
+
+    - name: Set sysctl variables
+      sysctl:
+        sysctl_file: /etc/sysctl.d/20-keepalived.conf
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      with_items:
+        - { name: net.ipv4.ip_nonlocal_bind, value: 1 }
+
+    - name: Stop keepalived service
+      ansible.builtin.systemd:
+        name: keepalived
+        state: stopped
+        daemon_reload: yes
+        enabled: yes
+      when: keepalived_service.changed
+
+    - name: Start keepalived service
+      ansible.builtin.systemd:
+        name: keepalived
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Wait for HA ip to come up
+      ansible.builtin.command: |
+        ping -c 1 -w 1 {{ keepalived_ip }}
+      register: ping
+      until:
+        - ping.rc == 0
+      retries: 30
+      delay: 5
+      run_once: true
+      changed_when: no
+
+- name: Setup keepalived
+  when: not k3s_keepalive_enabled | bool
+  block:
+    - name: Remove keepalived
+      ansible.builtin.package:
+        name: keepalived
+        state: absent
+
+    - name: Remove keepalived configuration
+      ansible.builtin.file:
+        path: /etc/keepalived/keepalived.conf
+        state: absent

@@ -1,0 +1,3 @@
+- name: Mount volumes
+  include: create_mount.yml mount={{item}}
+  with_items: "{{ fs_mounts }}"
