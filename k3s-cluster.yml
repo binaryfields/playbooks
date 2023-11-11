@@ -1,6 +1,5 @@
-#
-# common
-#
+
+## common
 
 - name: Deploy NAT configuration
   hosts: nat
@@ -20,15 +19,13 @@
   tags: common
 
 - name: Mount volumes on nodes
-  hosts: kube_node
+  hosts: kube_nodes
   become: true
   roles:
     - common-mount
   tags: common
 
-#
-# mfs
-#
+## mfs
 
 - name: Deploy mfs dns configuration
   hosts: mfs_cluster
@@ -75,9 +72,7 @@
     - mfs
     - mfs-client
 
-#
-# k3s
-#
+## k3s
 
 - name: Deploy k3s dependencies 
   hosts: kube_cluster
@@ -116,7 +111,7 @@
     - k3s-agent
 
 - name: Deploy k3s nodes
-  hosts: kube_node
+  hosts: kube_nodes
   become: true
   roles:
     - k3s/node

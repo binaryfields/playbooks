@@ -2,9 +2,12 @@
   ansible.builtin.apt:
     update_cache: true
 
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: safe
+
 - name: Install base packages
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items: "{{ base_packages }}"
-
