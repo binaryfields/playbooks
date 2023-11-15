@@ -2,7 +2,7 @@
 Description=Lightweight Kubernetes
 Documentation=https://k3s.io
 After=network-online.target
-Wants=network-online.target var-lib-rancher-k3s-storage.mount
+Wants=network-online.target mnt-mfs.mount
 
 [Service]
 Type=notify
@@ -33,7 +33,7 @@ ProtectHome=yes
 #ProtectKernelLogs=yes
 ProtectKernelTunables=yes
 ProtectSystem=strict
-ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run 
+ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run /mnt/mfs
 
 [Install]
 WantedBy=multi-user.target

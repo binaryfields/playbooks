@@ -17,7 +17,7 @@ flow-k3s:
     ansible-playbook k3s-cluster.yml -i inventory/flow --tags k3s
 
 flow-proxy:
-    ssh -L 6443:10.0.0.3:6443 flowgate
+    ssh -L 6443:10.0.0.5:6443 flowgate
 
 flow-kubeconfig:
     cp artifacts/kubeconfig ~/.kube/config
