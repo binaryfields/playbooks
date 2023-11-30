@@ -23,7 +23,6 @@ ExecStart=/usr/local/bin/k3s server \
     --kubelet-arg=tls-min-version=VersionTLS12 \
     --node-taint CriticalAddonsOnly=true:NoExecute \
     --protect-kernel-defaults=true \
-    --disable traefik \
     {{ extra_server_args | default("") }}
 Delegate=yes
 KillMode=process
@@ -43,7 +42,7 @@ PrivateTmp=yes
 ProtectHome=yes
 #ProtectHostname=yes
 #ProtectKernelLogs=yes
-ProtectKernelTunables=yes
+#ProtectKernelTunables=yes
 ProtectSystem=strict
 ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run 
 
