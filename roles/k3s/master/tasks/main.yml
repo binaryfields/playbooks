@@ -14,6 +14,15 @@
     - /var/lib/rancher/k3s
     - /var/log/rancher/audit
 
+- name: Install k3s binary
+  ansible.builtin.copy:
+    src: "artifacts/k3s-binary-{{ k3s_version }}"
+    dest: "/usr/local/bin/k3s"
+    owner: root
+    group: root
+    mode: "0700"
+  register: k3s_binary
+
 - name: Create k3s service file
   ansible.builtin.template:
     src: k3s.service.j2
@@ -27,7 +36,7 @@
   ansible.builtin.systemd:
     name: k3s
     state: stopped
-  when: k3s_service.changed
+  when: k3s_binary.changed or k3s_agent_service.changed
 
 - name: Start k3s service
   ansible.builtin.systemd:
@@ -35,6 +44,15 @@
     state: started
     daemon_reload: true
     enabled: true
+
+- name: Create symlinks to k3s
+  ansible.builtin.file:
+    src: "/usr/local/bin/k3s"
+    dest: "/usr/local/bin/{{ item }}"
+    state: link
+    force: true
+  with_items:
+    - kubectl 
 
 - name: Wait for node-token
   ansible.builtin.wait_for:

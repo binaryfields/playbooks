@@ -1,3 +1,6 @@
 - name: Mount volumes
-  include: create_mount.yml mount={{item}}
+  ansible.builtin.include_tasks: create_mount.yml
   with_items: "{{ fs_mounts }}"
+  vars: 
+    mount: "{{item}}"
+
