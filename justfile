@@ -1,6 +1,3 @@
-home:
-    ansible-playbook playbook.yml -i inventory/home
-
 flow-harden:
     ansible-playbook k3s-harden.yml -i inventory/flow
 
@@ -21,3 +18,6 @@ flow-proxy:
 
 flow-kubeconfig:
     cp artifacts/kubeconfig ~/.kube/config
+
+home:
+    ansible-playbook home.yml -i inventory/home

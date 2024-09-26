@@ -1,2 +1,5 @@
 nat_public_interface: eth0
 nat_internal_interface: eth1
+nat_external_services:
+  - ssh
+nat_external_unwanted_services: []

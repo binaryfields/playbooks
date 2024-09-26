@@ -15,3 +15,7 @@ unwanted_services:
   - atopacct
   - rsyslog
 timezone: Etc/UTC
+journald_config:
+  - { key: SystemMaxUse, value: "1G" }
+  - { key: SystemMaxFileSize, value: "10M" }
+sysctl_config: []

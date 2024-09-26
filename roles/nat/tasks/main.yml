@@ -20,6 +20,14 @@
     state: started
     enabled: true
 
+- name: Copy nat policy
+  ansible.builtin.copy:
+    src: nat_int_to_ext.xml
+    dest: /etc/firewalld/policies/nat_int_to_ext.xml
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Assign public interface to external zone
   ansible.posix.firewalld:
     zone: external
@@ -36,6 +44,14 @@
     permanent: true
     state: enabled
 
+- name: Enable masquerade on external zone
+  ansible.posix.firewalld:
+    zone: external
+    masquerade: true
+    immediate: true
+    permanent: true
+    state: enabled
+
 - name: Open external ports
   ansible.posix.firewalld:
     zone: external
@@ -43,15 +59,13 @@
     immediate: true
     permanent: true
     state: enabled
-  with_items:
-    - ssh
+  with_items: "{{nat_external_services}}"
 
-- name: Enable masquerade on external zone
+- name: Close external ports
   ansible.posix.firewalld:
-    zone: "{{ item }}"
-    masquerade: true
+    zone: external
+    service: "{{ item }}"
     immediate: true
     permanent: true
-    state: enabled
-  with_items:
-    - external
+    state: disabled
+  with_items: "{{nat_external_unwanted_services}}"

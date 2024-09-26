@@ -1,0 +1,43 @@
+- name: Configure dhcp server
+  community.general.ini_file:
+    dest: "/etc/systemd/network/{{dhcp_intf}}.network"
+    section: DHCPServer
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    create: yes
+    owner: root
+    group: root
+    mode: "0644"
+  with_items: 
+    - { key: Router, value: "{{dhcp_router}}" }
+    - { key: DNS, value: "{{dhcp_dns}}" }
+    - { key: EmitDNS, value: "yes" }
+    - { key: EmitRouter, value: "yes" }
+    - { key: PoolOffset, value: "{{dhcp_pool_offset}}" }
+    - { key: PoolSize, value: "{{dhcp_pool_size}}" }
+  notify: restart networkd
+
+- name: Enable dhcp server
+  community.general.ini_file:
+    dest: "/etc/systemd/network/{{dhcp_intf}}.network"
+    section: Network
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    create: yes
+    owner: root
+    group: root
+    mode: "0644"
+  with_items: 
+    - { key: DHCPServer, value: "yes" }
+  notify: restart networkd
+
+- name: Add static leases to dhcp server configuration
+  ansible.builtin.blockinfile:
+    path: "/etc/systemd/network/{{dhcp_intf}}.network"
+    insertafter: "[DHCPServer]"
+    block: |
+      [DHCPServerStaticLease]
+      MACAddress={{ item.mac }}
+      Address={{ item.ip }}
+  loop: "{{dhcp_static_leases}}"
+  notify: restart networkd

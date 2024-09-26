@@ -1,5 +1,0 @@
-router_services:
-  - firewalld
-  - isc-dhcp-server
-router_intf_lan: lan
-router_intf_wan: wan

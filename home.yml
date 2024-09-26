@@ -1,0 +1,32 @@
+- name: Deploy common configuration
+  hosts: all
+  become: true
+  roles:
+    - common
+    - common-user
+  tags:
+    - common
+
+- name: Deploy router
+  hosts: rpi_router
+  become: true
+  roles:
+    - nat
+  tags:
+    - router
+
+- name: Deploy dhcpd
+  hosts: rpi_dhcp
+  become: true
+  roles:
+    - dhcp
+  tags:
+    - dhcp
+
+- name: Deploy dns
+  hosts: rpi_dns
+  become: true
+  roles:
+    - pihole
+  tags:
+    - dns

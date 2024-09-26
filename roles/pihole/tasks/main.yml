@@ -1,0 +1,27 @@
+- name: Create pihole config directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - /etc/pihole
+    - /etc/dnsmasq.d
+
+- name: Create tempfile for pod config
+  ansible.builtin.tempfile:
+    state: file
+  register: pod_config
+
+- name: Upload pod config
+  ansible.builtin.template:
+    src: files/pihole.yaml
+    dest: "{{ pod_config.path }}"
+
+- name: Deploy pihole
+  containers.podman.podman_play:
+    kube_file: "{{ pod_config.path }}"
+    state: started
+    recreate: true
+    network: bridge

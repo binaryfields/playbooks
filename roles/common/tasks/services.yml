@@ -17,7 +17,7 @@
 
 - name: Configure journald
   community.general.ini_file:
-    dest: /etc/systemd/journald.conf
+    dest: /etc/systemd/journald.conf.d/50-local.conf
     section: Journal
     option: "{{ item.key }}"
     value: "{{ item.value }}"
@@ -25,7 +25,5 @@
     owner: root
     group: root
     mode: "0644"
-  with_items:
-    - { key: SystemMaxUse, value: "1G" }
-    - { key: SystemMaxFileSize, value: "10M" }
+  with_items: "{{ journald_config }}"
   notify: restart journald
