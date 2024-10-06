@@ -3,17 +3,11 @@ common_kernel_enabled: true
 common_host_enabled: true
 common_services_enabled: true
 common_tuning_enabled: true
-base_packages:
-  - atop
-  - htop
-  - zstd
-  - chrony
+base_packages: []
 kernel_packages: 
   - linux-image
-unwanted_services:
-  - atop
-  - atopacct
-  - rsyslog
+unwanted_packages: []
+unwanted_services: []
 timezone: Etc/UTC
 journald_config:
   - { key: SystemMaxUse, value: "1G" }

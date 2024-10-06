@@ -4,6 +4,7 @@
   roles:
     - common
     - common-user
+    - common-mount
   tags:
     - common
 
@@ -30,3 +31,11 @@
     - pihole
   tags:
     - dns
+
+- name: Deploy nfs
+  hosts: kube
+  become: true
+  roles:
+    - nfs
+  tags:
+    - nfs

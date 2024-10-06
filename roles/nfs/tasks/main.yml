@@ -1,0 +1,23 @@
+- name: Install nfs server
+  ansible.builtin.package:
+    name: nfs-kernel-server
+    state: present
+
+- name: Configure nfs exports
+  ansible.builtin.blockinfile:
+    path: /etc/exports
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.path }}"
+    block: "{{ item.path }} {{ item.client }}({{ item.options }})"
+  with_items: "{{ nfs_exports }}"
+  register: nfs_exports
+  
+- name: Run export
+  ansible.builtin.command: /usr/sbin/exportfs -arv
+  when: nfs_exports.changed
+
+- name: Start nfs service
+  ansible.builtin.systemd:
+    name: nfs-server
+    state: started
+    daemon_reload: true
+    enabled: true

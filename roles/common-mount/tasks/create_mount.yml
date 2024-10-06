@@ -16,11 +16,22 @@
 - name: Get volume UUID
   ansible.builtin.command: lsblk {{ mount.src }} -no UUID
   register: volume_uuid
+  when: fs_mount_use_uuid | bool
 
-- name: Mount volume
+- name: Mount volume by UUID
   ansible.posix.mount:
     path: "{{ mount.path }}"
     src: "UUID={{ volume_uuid.stdout_lines[0] }}"
     fstype: "{{ mount.fstype }}"
     opts: "{{ mount.opts }}"
     state: mounted
+  when: fs_mount_use_uuid | bool
+
+- name: Mount volume by src
+  ansible.posix.mount:
+    path: "{{ mount.path }}"
+    src: "{{ mount.src }}"
+    fstype: "{{ mount.fstype }}"
+    opts: "{{ mount.opts }}"
+    state: mounted
+  when: not fs_mount_use_uuid | bool

@@ -35,6 +35,7 @@
   ansible.builtin.blockinfile:
     path: "/etc/systemd/network/{{dhcp_intf}}.network"
     insertafter: "[DHCPServer]"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.ip }}"
     block: |
       [DHCPServerStaticLease]
       MACAddress={{ item.mac }}
