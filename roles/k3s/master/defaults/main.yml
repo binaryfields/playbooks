@@ -1,4 +1,4 @@
-k3s_version: v1.30.2+k3s2
+k3s_version: v1.33.0+k3s1
 k3s_keepalive_enabled: false
 keepalived_interface: eth0
 keepalived_addr_cidr: 192.168.122.100/24

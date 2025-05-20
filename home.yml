@@ -32,10 +32,20 @@
   tags:
     - dns
 
-- name: Deploy nfs
+- name: Deploy k3s
   hosts: kube
   become: true
   roles:
-    - nfs
+    - k3s/binary
+    - k3s/prereq
+    - k3s/master
   tags:
-    - nfs
+    - k3s
+
+- name: Deploy samba
+  hosts: kube
+  become: true
+  roles:
+    - samba
+  tags:
+    - samba

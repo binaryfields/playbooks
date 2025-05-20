@@ -9,15 +9,14 @@ Type=notify
 ExecStart=/usr/local/bin/k3s server \
     --kube-apiserver-arg=anonymous-auth=false \
     --kube-apiserver-arg=service-account-lookup=true \
-    --kube-controller-manager-arg=use-service-account-credentials=true \
-    --kubelet-arg=anonymous-auth=false \
     --kube-apiserver-arg=audit-log-maxage=30 \
     --kube-apiserver-arg=audit-log-maxbackup=30 \
     --kube-apiserver-arg=audit-log-maxsize=30 \
     --kube-apiserver-arg=audit-log-path=/var/log/rancher/audit/audit.log \
-    --node-taint CriticalAddonsOnly=true:NoExecute \
+    --kube-controller-manager-arg=use-service-account-credentials=true \
+    --kubelet-arg=anonymous-auth=false \
     --protect-kernel-defaults=true \
-    {{ extra_server_args | default("") }}
+    {{ k3s_extra_server_args | default("") }}
 Delegate=yes
 KillMode=process
 # Having non-zero Limit*s causes performance problems due to accounting overhead
@@ -38,7 +37,7 @@ ProtectHome=yes
 #ProtectKernelLogs=yes
 #ProtectKernelTunables=yes
 ProtectSystem=strict
-ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run 
+ReadWritePaths=/etc/rancher /var/log /var/lib /var/run /run
 
 [Install]
 WantedBy=multi-user.target

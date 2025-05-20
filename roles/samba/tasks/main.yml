@@ -1,0 +1,38 @@
+- name: Install smb server
+  ansible.builtin.package:
+    name:
+      - samba
+      - samba-common-bin
+    state: present
+
+- name: Copy smb configuration
+  ansible.builtin.copy:
+    src: smb.conf
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: smb_config
+
+- name: Run export
+  ansible.builtin.command: testparm
+  when: smb_config.changed
+
+- name: Stop smb service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+    - smbd
+    - nmbd
+  when: smb_config.changed
+
+- name: Start smb service
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    daemon_reload: true
+    enabled: true
+  with_items:
+    - smbd
+    - nmbd

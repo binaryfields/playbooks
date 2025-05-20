@@ -20,4 +20,4 @@ flow-kubeconfig:
     cp artifacts/kubeconfig ~/.kube/config
 
 home:
-    ansible-playbook home.yml -i inventory/home
+    ansible-playbook home.yml -i inventory/home --tags samba

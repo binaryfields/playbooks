@@ -6,10 +6,10 @@ Wants=network-online.target mnt-mfs.mount
 
 [Service]
 Type=notify
-ExecStart=/usr/local/bin/k3s agent --server https://{{ master_ip }}:6443 \
+ExecStart=/usr/local/bin/k3s agent --server https://{{ k3s_master_ip }}:6443 \
     --kubelet-arg=anonymous-auth=false \
     --protect-kernel-defaults=true \
-    {{ extra_agent_args | default("") }}
+    {{ k3s_extra_agent_args | default("") }}
 Environment="K3S_TOKEN={{ hostvars[groups['kube_master'][0]]['token'] }}"
 Delegate=yes
 KillMode=process
