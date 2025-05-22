@@ -36,7 +36,7 @@
   ansible.builtin.systemd:
     name: k3s
     state: stopped
-  when: k3s_binary.changed or k3s_agent_service.changed
+  when: k3s_binary.changed or k3s_service.changed
 
 - name: Start k3s service
   ansible.builtin.systemd:
@@ -52,7 +52,7 @@
     state: link
     force: true
   with_items:
-    - kubectl 
+    - kubectl
 
 - name: Wait for node-token
   ansible.builtin.wait_for:
