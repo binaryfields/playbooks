@@ -16,7 +16,7 @@ flow-k3s:
 flow-proxy:
     ssh -L 6443:10.0.0.5:6443 flowgate
 
-flow-kubeconfig:
+kube-config:
     cp artifacts/kubeconfig ~/.kube/config
 
 home:

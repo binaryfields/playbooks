@@ -1,1 +1,14 @@
-smb_exports: []
+# Default global settings
+smb_workgroup: workgroup
+smb_server_string: Samba Server
+smb_server_role: standalone server
+
+# Security settings
+smb_server_min_protocol: SMB3_11
+smb_client_min_protocol: SMB3_11
+smb_encrypt: desired
+smb_server_signing: mandatory
+smb_restrict_anonymous: 2
+
+# Default shares configuration
+smb_shares: []
