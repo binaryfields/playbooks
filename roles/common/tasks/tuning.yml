@@ -1,8 +1,33 @@
-- name: Tune system
+---
+- name: Validate sysctl_config variable
+  ansible.builtin.fail:
+    msg: "sysctl_config must be defined as a list"
+  when: sysctl_config is not defined or sysctl_config is not iterable
+  tags: [tuning, validate]
+
+- name: Create sysctl.d directory
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    mode: "0755"
+  tags: [tuning, setup]
+
+- name: Apply sysctl tuning parameters
   ansible.posix.sysctl:
-    sysctl_file: /etc/sysctl.d/10-tuning.conf
+    sysctl_file: /etc/sysctl.d/10-ansible-tuning.conf
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     state: present
     reload: true
-  with_items: "{{ sysctl_config }}"
+  loop: "{{ sysctl_config | default([]) }}"
+  register: sysctl_result
+  tags: [tuning, apply]
+
+- name: Verify sysctl parameters are applied
+  ansible.builtin.command: sysctl {{ item.name }}
+  loop: "{{ sysctl_config | default([]) }}"
+  register: sysctl_verify
+  changed_when: false
+  failed_when: false
+  when: verify_sysctl | default(false)
+  tags: [tuning, verify]

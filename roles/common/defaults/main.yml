@@ -3,13 +3,46 @@ common_kernel_enabled: true
 common_host_enabled: true
 common_services_enabled: true
 common_tuning_enabled: true
-base_packages: []
-kernel_packages: 
-  - linux-image
-unwanted_packages: []
-unwanted_services: []
+
 timezone: Etc/UTC
+
+# Domain configuration
+domain_name: ".local"
+use_fqdn: true
+
+# Kernel configuration
+auto_reboot: true
+kernel_reboot_timeout: 600
+
+kernel_packages:
+  - linux-image
+
+# Package managemetn configuration
+perform_upgrade: true
+validate_packages: false
+
+base_packages: []
+extra_packages: []
+protected_packages:
+  - bash
+  - init
+  - kernel-image
+  - libc6
+  - openssh-server
+  - sudo
+  - systemd
+unwanted_packages: []
+
+# Services configuration
+configure_ssh: true
+ssh_backup_configs: true
+
 journald_config:
   - { key: SystemMaxUse, value: "1G" }
   - { key: SystemMaxFileSize, value: "10M" }
+unwanted_services: []
+
+# Tuning configuration
+verify_sysctl: false
+
 sysctl_config: []

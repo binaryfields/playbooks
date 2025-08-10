@@ -42,10 +42,10 @@
   tags:
     - k3s
 
-- name: Deploy samba
-  hosts: kube
+- name: Deploy nas
+  hosts: nas
   become: true
   roles:
-    - samba
+    - netatalk
   tags:
-    - samba
+    - nas

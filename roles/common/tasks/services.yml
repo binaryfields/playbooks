@@ -1,29 +1,56 @@
+---
+- name: Check if unwanted services exist
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+  register: service_status
+  loop: "{{ unwanted_services | default([]) }}"
+  failed_when: false
+  changed_when: false
+  tags: [services, check]
+
 - name: Disable unwanted services
   ansible.builtin.service:
-    name: "{{ item }}"
+    name: "{{ item.item }}"
     state: stopped
     enabled: false
-  with_items: "{{ unwanted_services }}"
+  loop: "{{ service_status.results }}"
+  when:
+    - item.status is defined
+    - item.status.LoadState == "loaded"
   failed_when: false
+  tags: [services, disable]
 
-- name: Configure ssh
+- name: Create journald config directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    mode: "0755"
+  when: journald_config is defined
+  tags: [services, journald]
+
+- name: Configure journald
+  community.general.ini_file:
+    dest: /etc/systemd/journald.conf.d/50-ansible.conf
+    section: Journal
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ journald_config | default([]) }}"
+  notify: restart journald
+  tags: [services, journald]
+
+- name: Configure SSH daemon
   ansible.builtin.copy:
     src: etc/ssh/sshd_config
     dest: /etc/ssh/sshd_config
     owner: root
     group: root
     mode: "0644"
+    backup: true
+    validate: sshd -t -f %s
   notify: reload ssh
-
-- name: Configure journald
-  community.general.ini_file:
-    dest: /etc/systemd/journald.conf.d/50-local.conf
-    section: Journal
-    option: "{{ item.key }}"
-    value: "{{ item.value }}"
-    create: yes
-    owner: root
-    group: root
-    mode: "0644"
-  with_items: "{{ journald_config }}"
-  notify: restart journald
+  when: configure_ssh | default(true)
+  tags: [services, ssh]

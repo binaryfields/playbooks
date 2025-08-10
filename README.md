@@ -10,9 +10,9 @@
 - notify
 - ignore_errors
 
-## Hardening 
+## Hardening
 
-* Diff
+- Diff
 
 /etc/modprobe.d/dev-sec.conf
 /etc/profile.d/pinerolo_profile.sh

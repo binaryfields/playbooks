@@ -1,0 +1,32 @@
+- name: Install AFP server
+  ansible.builtin.apt:
+    name:
+      - netatalk
+    state: present
+    install_recommends: no
+
+- name: Create AFP configuration from template
+  ansible.builtin.template:
+    src: afp.conf.j2
+    dest: /etc/netatalk/afp.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: afp_config
+
+- name: Stop AFP service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+    - netatalk
+  when: afp_config.changed
+
+- name: Start AFP service
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    daemon_reload: true
+    enabled: true
+  with_items:
+    - netatalk

@@ -1,6 +1,6 @@
 .DS_Store
-.vscode/
 artifacts/
 inventory/
 SCRATCHPAD.md
 .aider*
+roles/common/tasks/services.yml

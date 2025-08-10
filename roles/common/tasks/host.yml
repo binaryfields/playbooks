@@ -1,10 +1,41 @@
+---
+- name: Set facts for hostname and domain
+  ansible.builtin.set_fact:
+    hostname_short: "{{ inventory_hostname_short }}"
+    hostname_fqdn: "{{ inventory_hostname_short }}.{{ domain_name | default('localdomain') }}"
+  when: domain_name is defined
+  tags: [host, setup]
+
 - name: Set hostname
   ansible.builtin.hostname:
-    name: "{{ inventory_hostname_short }}"
+    name: "{{ hostname_fqdn | default(inventory_hostname_short) }}"
+  register: hostname_result
+  tags: [host, hostname]
+
+- name: Update /etc/hostname
+  ansible.builtin.copy:
+    content: "{{ hostname_fqdn | default(inventory_hostname_short) }}\n"
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [host, hostname]
 
 - name: Add FQDN to /etc/hosts
   ansible.builtin.lineinfile:
     dest: /etc/hosts
     regexp: '^127\.0\.1\.1'
-    line: "127.0.1.1 {{ inventory_hostname }} {{ inventory_hostname_short }}"
+    line: "127.0.1.1 {{ hostname_fqdn | default(inventory_hostname) }} {{ hostname_short }}"
     state: present
+    backup: true
+  tags: [host, hosts]
+
+- name: Ensure localhost entries exist
+  ansible.builtin.lineinfile:
+    dest: /etc/hosts
+    line: "{{ item }}"
+    state: present
+  loop:
+    - "127.0.0.1 localhost"
+    - "::1 localhost ip6-localhost ip6-loopback"
+  tags: [host, hosts]

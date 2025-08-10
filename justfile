@@ -20,4 +20,4 @@ kube-config:
     cp artifacts/kubeconfig ~/.kube/config
 
 home:
-    ansible-playbook home.yml -i inventory/home --tags samba
+    ansible-playbook home.yml -i inventory/home --tags common

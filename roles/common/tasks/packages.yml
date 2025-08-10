@@ -1,17 +1,63 @@
-- name: Update apt cache
+---
+- name: Update apt cache with retry
   ansible.builtin.apt:
     update_cache: true
+    cache_valid_time: 3600
+  retries: 3
+  delay: 10
+  tags: [packages, update]
 
-- name: Upgrade all packages
+- name: Upgrade packages safely
   ansible.builtin.apt:
     upgrade: safe
+    autoremove: true
+  when: perform_upgrade | default(true)
+  retries: 2
+  tags: [packages, upgrade]
+
+- name: Validate base packages exist
+  ansible.builtin.shell: "apt-cache show {{ item }} >/dev/null 2>&1"
+  loop: "{{ base_packages | default([]) }}"
+  changed_when: false
+  failed_when: false
+  register: package_check
+  when: validate_packages | default(false)
+  tags: [packages, validate]
 
 - name: Install base packages
   ansible.builtin.package:
     name: "{{ base_packages }}"
     state: present
+  when: base_packages is defined
+  retries: 2
+  tags: [packages, install]
 
-- name: Remove unwanted packages
+- name: Install extra packages
   ansible.builtin.package:
-    name: "{{ unwanted_packages }}"
+    name: "{{ extra_packages }}"
+    state: present
+  when: extra_packages is defined
+  retries: 2
+  tags: [packages, install]
+
+- name: Remove unwanted packages safely
+  ansible.builtin.package:
+    name: "{{ item }}"
     state: absent
+    purge: true
+  loop: "{{ unwanted_packages | default([]) | difference(protected_packages | default(['sudo', 'openssh-server'])) }}"
+  register: removal_result
+  failed_when: false
+  tags: [packages, remove]
+
+- name: Check if reboot required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+  tags: [packages, reboot]
+
+- name: Notify reboot requirement
+  ansible.builtin.debug:
+    msg: "Reboot required after package changes"
+  when: reboot_required.stat.exists
+  tags: [packages, reboot]

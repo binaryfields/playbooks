@@ -1,0 +1,17 @@
+;
+; Netatalk 4.x configuration file
+;
+
+[Global]
+; Global server settings
+
+; [Homes]
+; basedir regex = /home
+
+{% for share in afp_shares %}
+[{{ share.name }}]
+path = {{ share.path }}
+{% if share.valid_users is defined %}
+valid users = {{ share.valid_users }}
+{% endif %}
+{% endfor %}
